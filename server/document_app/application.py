@@ -11,6 +11,9 @@ app.config['SECRET_KEY'] = 'secret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Elasticsearch
+app.config['ELASTICSEARCH_DATABASE_URI'] = os.getenv('ELASTICSEARCH_DATABASE_URI')
+
 
 def create_app():
     from document_app import extensions
@@ -22,5 +25,6 @@ def create_app():
     app.register_blueprint(main_blueprint)
 
     extensions.db.init_app(app)
+    extensions.es.init_app(app)
 
     return app

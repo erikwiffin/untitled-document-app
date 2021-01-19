@@ -15,8 +15,17 @@
         </div>
       </div>
       <div class="row">
-        <div class="col">
-          <div class="document-preview">{{ document.text }}</div>
+        <div class="col-sm-4">
+          <form
+            method="post"
+            action=""
+          >
+            <div class="form-group">
+              <label for="tags">Tags:</label>
+              <textarea class="form-control" id="tags" name="tags" rows="3">{{ document.tags | join(' ') }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
         </div>
         <div class="col">
           <object data="{{ res_url }}" type="{{ document.mimetype }}" class="resource-embed">

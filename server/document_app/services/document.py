@@ -8,6 +8,7 @@ import textract
 from werkzeug.datastructures import FileStorage
 
 from document_app.application import app
+from document_app.extensions import es
 from document_app.models.document import Document
 
 
@@ -22,9 +23,7 @@ class DocumentService:
         path.parent.mkdir(parents=True, exist_ok=True)
 
         if isinstance(input_stream, FileStorage):
-            print(path)
             res = input_stream.save(path)
-            print(res)
         else:
             with open(path, 'wb') as wh:
                 wh.write(input_stream.read())
@@ -42,6 +41,7 @@ class DocumentService:
         document.name = input_path.stem
         document.project = project
         document.text = text.decode('utf-8')
+        document.tags = []
         document.uploaded_on = datetime.utcnow()
         #document.mimetype = mimetype
         #document.encoding = encoding
@@ -50,3 +50,49 @@ class DocumentService:
         document.filename = input_path.name
 
         return document
+
+    def search(self, query, project):
+        params = {
+            'query': {
+                'bool': {
+                    'must': [
+                        {
+                            'match': {
+                                'text': {
+                                    'query': query.get('q', ''),
+                                },
+                            },
+                        },
+                    ],
+                    'filter': [
+                        {
+                            'term': {
+                                'project_id': project.id,
+                            },
+                        },
+                    ],
+                },
+            },
+        }
+        for tag in query.getlist('tags'):
+            params['query']['bool']['filter'].append({
+                'term': {
+                    'tags': tag,
+                },
+            })
+
+        results = es.search(
+            index=['document'],
+            body=params,
+            filter_path=[
+                'hits.hits._id',
+                'hits.hits._score',
+            ]
+        )
+
+        try:
+            doc_ids = [hit['_id'] for hit in results['hits']['hits']]
+        except KeyError:
+            doc_ids = []
+
+        return doc_ids

@@ -9,7 +9,7 @@ import shortuuid
 import textract
 
 from document_app.application import app
-from document_app.extensions import db
+from document_app.extensions import db, es
 from document_app.models.account import Account
 from document_app.models.project import Project
 from document_app.models.document import Document
@@ -30,6 +30,7 @@ def initdb():
 def resetdb():
     ''' Reset the documents table.
     '''
+    es.indices.delete('document')
     db.drop_all()
     db.create_all()
 

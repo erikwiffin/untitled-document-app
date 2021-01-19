@@ -16,6 +16,8 @@ textract = "^1.6.3"
 shortuuid = "^1.0.1"
 filetype = "^1.0.7"
 arrow = "^0.17.0"
+furl = "^2.1.0"
+elasticsearch-dsl = "^7.3.0"
 
 [tool.poetry.dev-dependencies]
 

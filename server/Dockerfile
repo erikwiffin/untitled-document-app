@@ -1,14 +1,17 @@
 FROM python:3
 
 RUN apt update
-RUN apt install -y 
+
+ADD http://archive.ubuntu.com/ubuntu/pool/universe/p/pstotext/pstotext_1.9-6build1_amd64.deb pstotext_1.9-6build1_amd64.deb
+RUN apt install -y ./pstotext_1.9-6build1_amd64.deb
+
+RUN apt install -y \
   python-dev \
   libxml2-dev \
   libxslt1-dev \
   antiword \
   unrtf \
   poppler-utils \
-  pstotext \
   tesseract-ocr \
   flac \
   ffmpeg \

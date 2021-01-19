@@ -1,0 +1,25 @@
+version: '3'
+services:
+  server:
+    build: server
+    volumes:
+      - ./server:/usr/src/app:delegated
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      ELASTICSEARCH_DATABASE_URI: 'http://elasticsearch:9200'
+    command: flask run --host 0.0.0.0
+
+  elasticsearch:
+    image: elasticsearch:7.10.1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "discovery.type=single-node"
+
+  kibana:
+    image: kibana:7.10.1
+    ports:
+      - "5601:5601"
