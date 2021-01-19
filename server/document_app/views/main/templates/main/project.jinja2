@@ -1,0 +1,58 @@
+{% extends "base.jinja2" %}
+
+{% block body %}
+  <section>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col">
+          <h2>
+            <a href="/projects"><i class="bi bi-house-door-fill"></i></a>
+            ::
+            {{ project.name }}
+          </h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <form
+            class="document-upload-form"
+            method="post"
+            enctype="multipart/form-data"
+            action="/projects/{{ project.shortid }}/upload"
+          >
+            <input type="file" id="document" name="document" accept="application/pdf" class="" />
+            <button type="submit" class="btn btn-link">Upload</button>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for document in documents %}
+                <tr>
+                  <td>{{ document.shortid }}</td>
+                  <td>{{ document.name }}</td>
+                  <td>{{ document.uploaded_on | humanize }}</td>
+                  <td>
+                    <a href="/projects/{{ document.project.shortid }}/docs/{{ document.shortid }}">view</a>
+                    |
+                    <a href="/projects/{{ document.project.shortid }}/res/{{ document.shortid }}?download=1">download</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

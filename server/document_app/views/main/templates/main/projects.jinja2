@@ -1,0 +1,28 @@
+{% extends "base.jinja2" %}
+
+{% block body %}
+  <section>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for project in projects %}
+                <tr>
+                  <td><a href="/projects/{{ project.shortid }}">{{ project.shortid }}</a></td>
+                  <td>{{ project.name }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

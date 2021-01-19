@@ -1,0 +1,29 @@
+{% extends "base.jinja2" %}
+
+{% block body %}
+  <section>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col">
+          <h2>
+            <a href="/projects"><i class="bi bi-house-door-fill"></i></a>
+            ::
+            <a href="/projects/{{ project.shortid }}">{{ project.name }}</a>
+            ::
+            {{ document.name }}
+          </h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="document-preview">{{ document.text }}</div>
+        </div>
+        <div class="col">
+          <object data="{{ res_url }}" type="{{ document.mimetype }}" class="resource-embed">
+            <embed src="{{ res_url }}" type="{{ document.mimetype }}" />
+          </object>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

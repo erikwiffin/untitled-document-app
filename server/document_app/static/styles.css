@@ -1,0 +1,55 @@
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+body > header {
+  flex: 0;
+  padding: 25px 50px;
+}
+
+body > section {
+  flex: auto;
+}
+
+body > footer {
+  flex: 0;
+  padding: 25px 50px;
+  text-align: center;
+  width: 100%;
+}
+
+h2 {
+  margin-bottom: 25px;
+}
+
+.document-upload-form {
+  position: relative;
+}
+
+.document-upload-form input[type=file] {
+  width: 100%;
+  background: #EEE;
+  padding: 25px 25px 50px;
+  border-radius: 25px;
+}
+.document-upload-form button[type=submit] {
+  position: absolute;
+  bottom: 15px;
+  left: calc(50% - 50px);
+  width: 100px;
+  color: #000;
+  text-decoration: none;
+}
+
+.document-preview {
+  white-space: pre-wrap;
+}
+
+.resource-embed,
+.resource-embed embed{
+  border: none;
+  width: 100%;
+  height: 100%;
+}
