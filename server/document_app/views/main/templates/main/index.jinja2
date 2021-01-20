@@ -1,5 +1,10 @@
 {% extends "base.jinja2" %}
 
 {% block body %}
-Hello world!
+  <div id="root"></div>
+{% endblock %}
+
+{% block javascript %}
+  {{ super() }}
+  <script src="/static/dist/a.bundle.js"></script>
 {% endblock %}
