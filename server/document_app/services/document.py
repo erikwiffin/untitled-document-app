@@ -14,6 +14,25 @@ from document_app.models.document import Document
 
 class DocumentService:
 
+    def extract_text(self, path):
+        # Figure out what it is
+        kind = filetype.guess(str(path))
+
+        # Get the text out of it
+        if kind.mime == 'application/pdf':
+            text = textract.process(path, extension='pdf', layout=True, method='pdftotext').decode('utf-8')
+            if not text.strip():
+                text = textract.process(path, extension='pdf', method='tesseract').decode('utf-8')
+        elif kind.mime == 'image/png':
+            text = textract.process(path, extension='png').decode('utf-8')
+        elif kind.mime == 'image/gif':
+            text = textract.process(path, extension='gif').decode('utf-8')
+        else:
+            raise Exception(f'Unrecognized file format "{kind.mime}"')
+
+        return kind, text
+
+
     def handle_upload(self, input_stream, filename, project):
         input_path = Path(filename)
         id = shortuuid.uuid()
@@ -28,19 +47,14 @@ class DocumentService:
             with open(path, 'wb') as wh:
                 wh.write(input_stream.read())
 
-        # Figure out what it is
-        kind = filetype.guess(str(path))
-        #mimetype, encoding = mimetypes.guess_type(path)
-
-        # Get the text out of it
-        text = textract.process(path, extension='pdf', layout=True)
+        kind, text = self.extract_text(str(path))
 
         # Create a Document
         document = Document()
         document.shortid = id
         document.name = input_path.stem
         document.project = project
-        document.text = text.decode('utf-8')
+        document.text = text
         document.tags = []
         document.uploaded_on = datetime.utcnow()
         #document.mimetype = mimetype
