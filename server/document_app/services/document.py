@@ -1,7 +1,7 @@
 from datetime import datetime
-#import mimetypes
 from pathlib import Path
 
+from elasticsearch.exceptions import NotFoundError
 import filetype
 import shortuuid
 import textract
@@ -69,15 +69,7 @@ class DocumentService:
         params = {
             'query': {
                 'bool': {
-                    'must': [
-                        {
-                            'match': {
-                                'text': {
-                                    'query': query.get('q', ''),
-                                },
-                            },
-                        },
-                    ],
+                    'must': [],
                     'filter': [
                         {
                             'term': {
@@ -88,6 +80,16 @@ class DocumentService:
                 },
             },
         }
+
+        if query.get('q'):
+            params['query']['bool']['must'].append({
+                'match': {
+                    'text': {
+                        'query': query.get('q'),
+                    },
+                },
+            })
+
         for tag in query.getlist('tags'):
             params['query']['bool']['filter'].append({
                 'term': {
@@ -95,18 +97,17 @@ class DocumentService:
                 },
             })
 
-        results = es.search(
-            index=['document'],
-            body=params,
-            filter_path=[
-                'hits.hits._id',
-                'hits.hits._score',
-            ]
-        )
-
         try:
+            results = es.search(
+                index=['document'],
+                body=params,
+                filter_path=[
+                    'hits.hits._id',
+                    'hits.hits._score',
+                ]
+            )
             doc_ids = [hit['_id'] for hit in results['hits']['hits']]
-        except KeyError:
+        except (KeyError, NotFoundError):
             doc_ids = []
 
         return doc_ids

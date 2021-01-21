@@ -3,6 +3,8 @@
 {% block body %}
   <section>
     <div class="container-fluid">
+
+      <!-- Breadcrumbs -->
       <div class="row">
         <div class="col">
           <h2>
@@ -12,25 +14,40 @@
           </h2>
         </div>
       </div>
+
+      <!-- Search Form -->
       <div class="row">
         <div class="col">
           <form
             method="get"
             action=""
           >
-            {% for tag in request.args.getlist('tags'): %}
+
+            {% for tag in request.args.getlist('tags') %}
               <input type="hidden" name="tags" value="{{ tag }}" />
             {% endfor %}
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search..." id="q" name="q" value="{{ query }}" />
-              <div class="input-group-append">
-                <button type="submit" class="btn btn-outline-secondary"><i class="bi-search"></i>
-</button>
+
+            <div class="form-group">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search..." id="q" name="q" value="{{ query }}" />
+                <div class="input-group-append">
+                  <button type="submit" class="btn btn-outline-secondary"><i class="bi-search"></i>
+                  </button>
+                </div>
               </div>
             </div>
+
+            <div class="form-group">
+              {% for tag in request.args.getlist('tags') %}
+                <a href="{{ request.url | without_params({ "tags": tag }) }}" class="badge badge-info">{{ tag }} &times;</a>
+              {% endfor %}
+            </div>
+
           </form>
         </div>
       </div>
+
+      <!-- Documents List -->
       <div class="row">
         <div class="col">
           <table class="table">
@@ -49,7 +66,7 @@
                   <td>
                     <a href="/projects/{{ document.project.shortid }}/docs/{{ document.shortid }}">{{ document.name }}</a>
                     {% if document.tags %}
-                      <div class="alert alert-light">
+                      <div class="py-1">
                         {% for tag in document.tags %}
                           <a href="{{ request.url | with_params({ "tags": tag }) }}" class="badge badge-info">{{ tag }}</a>
                         {% endfor %}
@@ -71,6 +88,8 @@
           {% endif %}
         </div>
       </div>
+
+      <!-- New Document Form -->
       <div class="row">
         <div class="col">
           <form

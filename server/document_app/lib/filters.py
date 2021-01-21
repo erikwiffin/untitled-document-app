@@ -28,3 +28,10 @@ def with_params_filter(target, params):
     url = furl(target)
 
     return url.add(params)
+
+
+@app.template_filter('without_params')
+def without_params_filter(target, params):
+    url = furl(target)
+
+    return url.remove(params)

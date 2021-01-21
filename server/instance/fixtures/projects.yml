@@ -1,0 +1,9 @@
+- id: 1
+  name: "1553 N. High Street"
+  accounts: [1, 2]
+- id: 2
+  name: "Erik's secret project"
+  accounts: [1]
+- id: 3
+  name: "Hannah's secret project"
+  accounts: [2]

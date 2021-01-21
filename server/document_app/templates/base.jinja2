@@ -21,9 +21,52 @@
   <body>
     {% block header %}
       <header>
-        <h1>Untitled Document App</h1>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="/">Untitled Document App</a>
+          {% if current_user.is_authenticated %}
+            <span class="navbar-text">
+              Hello {{ current_user.username }}!
+            </span>
+          {% endif %}
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+              {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('main.projects') }}">Projects</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                </li>
+              {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+        </nav>
       </header>
     {% endblock %}
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="container">
+          <div class="row">
+            <div class="col">
+              {% for message in messages %}
+                <div class="alert alert-primary m-3" role="alert">{{ message }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endwith %}
 
     {% block body %}
       <section></section>

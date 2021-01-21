@@ -10,6 +10,8 @@ from flask import (
     send_file,
     url_for,
 )
+from flask_login import current_user, login_required
+import shortuuid
 from werkzeug.utils import secure_filename
 
 from document_app.application import app
@@ -25,36 +27,47 @@ BP = Blueprint('main',
 
 
 @BP.route('/')
+@login_required
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('.projects'))
+
     return render_template('main/index.jinja2')
 
 
 @BP.route('/projects')
+@login_required
 def projects():
-    projects = Project.query.all()
+    projects = Project.query.filter(Project.accounts.contains(current_user)).all()
 
     return render_template('main/projects.jinja2', projects=projects)
 
 
+@BP.route('/projects/create', methods=['POST'])
+@login_required
+def create_project():
+    project = Project()
+    project.shortid = shortuuid.uuid()
+    project.name = request.form['name']
+
+    db.session.add(project)
+    db.session.commit()
+
+    return redirect(url_for('.projects'))
+
+
 @BP.route('/projects/<project_id>')
+@login_required
 def search(project_id):
     project = Project.query.filter_by(shortid=project_id).first_or_404()
     documents = []
 
-    if request.args.get('q'):
-        service = DocumentService()
-        doc_ids = service.search(request.args, project)
-        documents = Document.query.filter(Document.id.in_(doc_ids)).all()
-    else:
-        query = Document.query\
-            .filter_by(project_id=project.id)\
-            .order_by(Document.uploaded_on.desc())\
-
-        if request.args.get('tags'):
-            for tag in request.args.getlist('tags'):
-                query = query.filter(Document.tags.contains(tag))
-
-        documents = query.all()
+    service = DocumentService()
+    doc_ids = service.search(request.args, project)
+    documents = Document.query\
+        .filter(Document.id.in_(doc_ids))\
+        .order_by(Document.uploaded_on.desc())\
+        .all()
 
     return render_template('main/project.jinja2',
                            project=project,
@@ -63,6 +76,7 @@ def search(project_id):
 
 
 @BP.route('/projects/<project_id>/docs/<doc_id>')
+@login_required
 def doc(project_id, doc_id):
     project = Project.query.filter_by(shortid=project_id).first_or_404()
     document = Document.query.filter_by(shortid=doc_id, project_id=project.id).first_or_404()
@@ -72,6 +86,7 @@ def doc(project_id, doc_id):
 
 
 @BP.route('/projects/<project_id>/docs/<doc_id>', methods=['POST'])
+@login_required
 def update_doc(project_id, doc_id):
     project = Project.query.filter_by(shortid=project_id).first_or_404()
     document = Document.query.filter_by(shortid=doc_id, project_id=project.id).first_or_404()
@@ -86,6 +101,7 @@ def update_doc(project_id, doc_id):
 
 
 @BP.route('/projects/<project_id>/res/<doc_id>')
+@login_required
 def res(project_id, doc_id):
     project = Project.query.filter_by(shortid=project_id).first_or_404()
     document = Document.query.filter_by(shortid=doc_id, project_id=project.id).first_or_404()
@@ -98,6 +114,7 @@ def res(project_id, doc_id):
 
 
 @BP.route('/projects/<project_id>/upload', methods=['POST'])
+@login_required
 def upload(project_id):
     project = Project.query.filter_by(shortid=project_id).first_or_404()
 

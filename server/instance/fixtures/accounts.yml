@@ -1,0 +1,8 @@
+- id: 1
+  username: "erik"
+  email: "erik@example.com"
+  password: "guest"
+- id: 2
+  username: "hannah"
+  email: "hannah@example.com"
+  password: "guest"

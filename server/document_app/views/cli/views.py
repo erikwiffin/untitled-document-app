@@ -7,6 +7,7 @@ import click
 from flask import Blueprint
 import shortuuid
 import textract
+import yaml
 
 from document_app.application import app
 from document_app.extensions import db, es
@@ -30,9 +31,38 @@ def initdb():
 def resetdb():
     ''' Reset the documents table.
     '''
-    es.indices.delete('document')
+    try:
+        es.indices.delete('document')
+    except:
+        pass
+
     db.drop_all()
     db.create_all()
+
+    path = Path(app.instance_path) / 'fixtures'
+
+    with open(path / 'accounts.yml') as fh:
+        data = yaml.safe_load(fh)
+
+        for row in data:
+            account = Account(**{k: row[k] for k in row if k not in ['password']})
+            account.set_password(row['password'])
+            db.session.add(account)
+            click.echo(account)
+
+    db.session.commit()
+
+    with open(path / 'projects.yml') as fh:
+        data = yaml.safe_load(fh)
+
+        for row in data:
+            project = Project(**{k: row[k] for k in row if k not in ['accounts']})
+            project.shortid = shortuuid.uuid()
+            project.accounts = [Account.query.get(id) for id in row['accounts']]
+            db.session.add(project)
+            click.echo(project)
+
+    db.session.commit()
 
 
 @app.cli.command()
