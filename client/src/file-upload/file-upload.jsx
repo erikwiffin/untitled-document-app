@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { readAsDataURL } from './read-as-data-url';
+import FileService, { EVENTS } from './file-service';
+import Preview from './preview';
 
 import './styles.scss';
 
@@ -17,6 +18,19 @@ class FileUpload extends React.Component {
     files: [],
   };
   files = [];
+  service = null;
+
+  componentDidMount() {
+    this.service = new FileService(this.props.url);
+    this.service.register(EVENTS.FILE_ADDED, this.handleFileServiceEvents);
+    this.service.register(EVENTS.UPLOAD_COMPLETE, this.handleFileServiceEvents);
+    this.service.register(EVENTS.UPLOAD_FAILED, this.handleFileServiceEvents);
+  }
+
+  handleFileServiceEvents = (event, file) => {
+    console.log(event, file);
+    this.setState({ files: this.service.files });
+  };
 
   handleDragEnter = (event) => {
     event.preventDefault();
@@ -48,56 +62,7 @@ class FileUpload extends React.Component {
     const dt = event.dataTransfer;
     const files = dt.files;
 
-    [...files].forEach(async (file) => {
-      const id = Math.random();
-      const dataURL = await readAsDataURL(file);
-
-      const fileObj = {
-        id,
-        dataURL,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        status: 'uploading',
-        error: null,
-      };
-
-      this.files.push(fileObj);
-
-      this.setState({
-        files: JSON.parse(JSON.stringify(this.files)),
-      });
-
-      const formData = new FormData();
-
-      formData.append('document', file);
-
-      fetch(this.props.url, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json',
-        },
-      })
-        .then(resp => resp.json())
-        .then(data => {
-          fileObj.status = 'complete';
-          fileObj.url = data.URL;
-
-          this.setState({
-            files: JSON.parse(JSON.stringify(this.files)),
-          });
-        })
-        .catch(err => {
-          console.error(err);
-          fileObj.status = 'error';
-          fileObj.error = `${err}`;
-
-          this.setState({
-            files: JSON.parse(JSON.stringify(this.files)),
-          });
-        });
-    });
+    [...files].forEach(this.service.process);
   }
 
   render() {
@@ -123,25 +88,7 @@ class FileUpload extends React.Component {
         </div>
 
         {this.state.files.map(file => (
-          <div className="row m-3" key={file.id}>
-            <div className="col-2">
-              <img src={file.dataURL} className="mr-3" alt={file.name} style={{maxWidth: '100%'}} />
-            </div>
-            <div className="col">
-              <h5 className="mt-0">{file.name}</h5>
-              {file.status === 'uploading' ? (
-                <p>Uploading...</p>
-              ) : ''}
-              {file.status === 'complete' ? (
-                <p><a href={file.url}>Complete</a></p>
-              ) : ''}
-              {file.status === 'error' ? (
-                <div className="alert alert-danger" role="alert">
-                  {file.error}
-                </div>
-              ) : ''}
-            </div>
-          </div>
+          <Preview key={file.id} file={file} />
         ))}
 
       </div>

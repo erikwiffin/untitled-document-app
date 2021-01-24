@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
+import arrow
 from elasticsearch.exceptions import NotFoundError
 import filetype
 import shortuuid
@@ -33,7 +34,7 @@ class DocumentService:
         return kind, text
 
 
-    def handle_upload(self, input_stream, filename, project):
+    def handle_upload(self, input_stream, filename, project, uploaded_on=None):
         input_path = Path(filename)
         id = shortuuid.uuid()
 
@@ -49,6 +50,11 @@ class DocumentService:
 
         kind, text = self.extract_text(str(path))
 
+        if not uploaded_on:
+            uploaded_on = datetime.utcnow()
+        else:
+            uploaded_on = arrow.get(uploaded_on).datetime
+
         # Create a Document
         document = Document()
         document.shortid = id
@@ -56,7 +62,7 @@ class DocumentService:
         document.project = project
         document.text = text
         document.tags = []
-        document.uploaded_on = datetime.utcnow()
+        document.uploaded_on = uploaded_on
         #document.mimetype = mimetype
         #document.encoding = encoding
         document.mimetype = kind.mime
@@ -104,7 +110,8 @@ class DocumentService:
                 filter_path=[
                     'hits.hits._id',
                     'hits.hits._score',
-                ]
+                ],
+                size=100
             )
             doc_ids = [hit['_id'] for hit in results['hits']['hits']]
         except (KeyError, NotFoundError):

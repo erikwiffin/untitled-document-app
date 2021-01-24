@@ -142,15 +142,17 @@ def upload(project_id):
         if file.filename == '':
             raise Exception('Missing file')
 
-        return file
+        uploaded_on = request.form.get('uploadedOn')
+
+        return file, uploaded_on
 
     try:
-        file = validate()
+        file, uploaded_on = validate()
         filename = secure_filename(file.filename)
 
         service = DocumentService()
 
-        document = service.handle_upload(file, filename, project)
+        document = service.handle_upload(file, filename, project, uploaded_on)
 
         db.session.add(document)
         db.session.commit()
@@ -159,7 +161,7 @@ def upload(project_id):
             return jsonify({
                 'error': 'FileUploadError',
                 'message': f'{error}',
-            })
+            }), 422
         else:
             flash(error)
             return redirect(return_to)
