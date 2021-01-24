@@ -59,7 +59,7 @@ def create_project():
 
 @BP.route('/projects/<project_id>')
 @login_required
-def search(project_id):
+def project(project_id):
     project = Project.query.filter_by(shortid=project_id).first_or_404()
     documents = []
 
@@ -98,7 +98,19 @@ def update_doc(project_id, doc_id):
 
     db.session.commit()
 
-    return redirect(f'/projects/{project_id}/docs/{doc_id}')
+    return redirect(url_for('.doc', project_id=project_id, doc_id=doc_id))
+
+
+@BP.route('/projects/<project_id>/docs/<doc_id>/delete', methods=['POST'])
+@login_required
+def delete_doc(project_id, doc_id):
+    project = Project.query.filter_by(shortid=project_id).first_or_404()
+    document = Document.query.filter_by(shortid=doc_id, project_id=project.id).first_or_404()
+
+    db.session.delete(document)
+    db.session.commit()
+
+    return redirect(url_for('.project', project_id=project_id))
 
 
 @BP.route('/projects/<project_id>/res/<doc_id>')

@@ -75,7 +75,10 @@
                   </td>
                   <td>{{ document.uploaded_on | humanize }}</td>
                   <td>
-                    <a href="/projects/{{ document.project.shortid }}/res/{{ document.shortid }}?download=1">download</a>
+                    <a href="/projects/{{ document.project.shortid }}/res/{{ document.shortid }}?download=1" class="btn btn-link" title="Download"><i class="bi bi-download"></i></a>
+                    <form action="/projects/{{ document.project.shortid }}/docs/{{ document.shortid }}/delete" method="post" class="d-inline">
+                      <button type="submit" class="btn btn-link" title="Delete"><i class="bi bi-trash"></i></button>
+                    </form>
                   </td>
                 </tr>
               {% endfor %}
