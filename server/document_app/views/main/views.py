@@ -3,6 +3,7 @@ import re
 
 from flask import (
     Blueprint,
+    flash,
     jsonify,
     redirect,
     render_template,
@@ -120,23 +121,41 @@ def upload(project_id):
 
     return_to = f'/projects/{ project_id }'
 
-    if 'document' not in request.files:
-        flash('Missing file')
+    def validate():
+        if 'document' not in request.files:
+            raise Exception('Missing file')
+
+        file = request.files['document']
+
+        if file.filename == '':
+            raise Exception('Missing file')
+
+        return file
+
+    try:
+        file = validate()
+        filename = secure_filename(file.filename)
+
+        service = DocumentService()
+
+        document = service.handle_upload(file, filename, project)
+
+        db.session.add(document)
+        db.session.commit()
+    except Exception as error:
+        if request.headers['Accept'] == 'application/json':
+            return jsonify({
+                'error': 'FileUploadError',
+                'message': f'{error}',
+            })
+        else:
+            flash(error)
+            return redirect(return_to)
+
+    if request.headers['Accept'] == 'application/json':
+        return jsonify({
+            'Success': True,
+            'URL': url_for('.doc', project_id=project_id, doc_id=document.shortid),
+        })
+    else:
         return redirect(return_to)
-
-    file = request.files['document']
-
-    if file.filename == '':
-        flash('Missing file')
-        return redirect(return_to)
-
-    filename = secure_filename(file.filename)
-
-    service = DocumentService()
-
-    document = service.handle_upload(file, filename, project)
-
-    db.session.add(document)
-    db.session.commit()
-
-    return redirect(return_to)

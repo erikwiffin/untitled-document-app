@@ -90,19 +90,26 @@
       </div>
 
       <!-- New Document Form -->
-      <div class="row">
-        <div class="col">
-          <form
-            class="document-upload-form"
-            method="post"
-            enctype="multipart/form-data"
-            action="/projects/{{ project.shortid }}/upload"
-          >
-            <input type="file" id="document" name="document" accept="application/pdf" class="" />
-            <button type="submit" class="btn btn-link">Upload</button>
-          </form>
+      <div class="row justify-content-sm-center">
+        <div class="col col-lg-8">
+          <div class="file-upload">
+            <form
+              class="document-upload-form"
+              method="post"
+              enctype="multipart/form-data"
+              action="/projects/{{ project.shortid }}/upload"
+            >
+              <input type="file" id="document" name="document" accept="application/pdf" class="" />
+              <button type="submit" class="btn btn-link">Upload</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
   </section>
+{% endblock %}
+
+{% block javascript %}
+  {{ super() }}
+  <script src="/static/dist/fileUpload.bundle.js"></script>
 {% endblock %}

@@ -4,8 +4,7 @@ module.exports = {
   entry: {
     vendor: ['react', 'react-dom', 'jquery', 'bootstrap'],
     styles: path.resolve(__dirname, './src/styles.scss'),
-    a: path.resolve(__dirname, './src/index.js'),
-    b: path.resolve(__dirname, './src/index2.js'),
+    fileUpload: path.resolve(__dirname, './src/file-upload/index.js'),
   },
   module: {
     rules: [
