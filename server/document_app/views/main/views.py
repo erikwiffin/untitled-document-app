@@ -39,6 +39,8 @@ def index():
 @BP.route('/projects')
 @login_required
 def projects():
+    """ List projects.
+    """
     projects = Project.query.filter(Project.accounts.contains(current_user)).all()
 
     return render_template('main/projects.jinja2', projects=projects)

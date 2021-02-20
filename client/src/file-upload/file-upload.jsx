@@ -65,6 +65,12 @@ class FileUpload extends React.Component {
     [...files].forEach(this.service.process);
   }
 
+  handleInputChange = (event) => {
+    const files = event.target.files;
+
+    [...files].forEach(this.service.process);
+  }
+
   render() {
     const dropZoneClasses = [
       (this.state.dragging) ? 'bg-primary' : 'bg-info',
@@ -84,8 +90,10 @@ class FileUpload extends React.Component {
           onDragLeave={this.handleDragLeave}
           onDrop={this.handleDrop}
         >
-          <div className="h3 mb-0">Drag files here.</div>
+          <div className="h3 mb-0">Drag files here, or <label htmlFor="file-input" className="btn btn-link">click to upload</label>.</div>
         </div>
+
+        <input type="file" accept="image/*" capture="camera" id="file-input" onChange={this.handleInputChange} multiple />
 
         {this.state.files.map(file => (
           <Preview key={file.id} file={file} />

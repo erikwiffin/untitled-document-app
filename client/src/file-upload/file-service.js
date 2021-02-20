@@ -43,7 +43,7 @@ class FileService {
     const formData = new FormData();
 
     formData.append('document', file);
-    formData.append('uploadedOn', file.lastModifiedDate.toISOString());
+    formData.append('uploadedOn', new Date(file.lastModified).toISOString());
 
     return fetch(this._url, {
       method: 'POST',

@@ -28,6 +28,8 @@ class DocumentService:
             text = textract.process(path, extension='png').decode('utf-8')
         elif kind.mime == 'image/gif':
             text = textract.process(path, extension='gif').decode('utf-8')
+        elif kind.mime == 'image/jpeg':
+            text = textract.process(path, extension='jpeg').decode('utf-8')
         else:
             raise Exception(f'Unrecognized file format "{kind.mime}"')
 
